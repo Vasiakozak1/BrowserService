@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+service ChromiumManipulatorService {
+    rpc StartChromiumSession (StartChromiumSessionRequest) returns (StartChromiumSessionResponse);
+    rpc EndChromiumSession (EndChromiumSessionRequest) returns (EndChromiumSessionResponse);
+    rpc RedirectTo (RedirectToRequest) returns (RedirectToResponse);
+    rpc RefreshPage (Empty) returns (Empty);
+    rpc GetCurrentUrl (Empty) returns (GetCurrentUrlResponse);
+    rpc InjectJS (InjectJSRequest) returns (InjectJSResponse);
+    rpc InjectJSWithResult (InjectJSWithResultRequest) returns (InjectJSWithResultResponse);
+}
+
+message Empty {
+}
+
+message StartChromiumSessionRequest {
+    string extensionPath = 1;
+}
+message StartChromiumSessionResponse{
+    string browserSessionGuid = 1;
+}
+message EndChromiumSessionRequest {
+    string browserSessionGuid = 1;
+}
+message EndChromiumSessionResponse {
+    bool success = 1;
+}
+message RedirectToRequest {
+    string url = 1;
+}
+message RedirectToResponse {
+    bool success = 1;
+}
+message InjectJSRequest {
+    string jsCode = 1;
+}
+message InjectJSResponse {
+    boolean success = 1;
+}
+message InjectJSWithResultRequest {
+    string jsCode = 1;
+}
+message InjectJSWithResultResponse {
+    bool success = 1;
+    string result = 2;
+}
+message GetCurrentUrlResponse {
+    string url = 1;
+}
