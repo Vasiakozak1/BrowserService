@@ -5,7 +5,7 @@ service ChromiumManipulatorService {
     rpc EndChromiumSession (EndChromiumSessionRequest) returns (EndChromiumSessionResponse);
     rpc RedirectTo (RedirectToRequest) returns (RedirectToResponse);
     rpc RefreshPage (Empty) returns (Empty);
-    rpc GetCurrentUrl (Empty) returns (GetCurrentUrlResponse);
+    rpc GetCurrentUrl (GetCurrentUrlRequest) returns (GetCurrentUrlResponse);
     rpc InjectJS (InjectJSRequest) returns (InjectJSResponse);
     rpc InjectJSWithResult (InjectJSWithResultRequest) returns (InjectJSWithResultResponse);
 }
@@ -26,23 +26,29 @@ message EndChromiumSessionResponse {
     bool success = 1;
 }
 message RedirectToRequest {
-    string url = 1;
+    string browserGuid = 1;
+    string url = 2;
 }
 message RedirectToResponse {
     bool success = 1;
 }
 message InjectJSRequest {
-    string jsCode = 1;
+    string browserGuid = 1;
+    string jsCode = 2;
 }
 message InjectJSResponse {
-    boolean success = 1;
+    bool success = 1;
 }
 message InjectJSWithResultRequest {
-    string jsCode = 1;
+    string browserGuid = 1;
+    string jsCode = 2;
 }
 message InjectJSWithResultResponse {
     bool success = 1;
     string result = 2;
+}
+message GetCurrentUrlRequest {
+    string browserGuid = 1;
 }
 message GetCurrentUrlResponse {
     string url = 1;
