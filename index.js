@@ -14,29 +14,58 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         callback(null, {success: true});
     },
     redirectTo: async (call, callback) => {
-        let browserGuid = call.request.browserGuid;
-        let redirectUrl = call.request.url;
-        await browserService.RedirectToAsync(browserGuid, redirectUrl);
-        callback(null, {success: true});
+        try 
+        {
+            let browserGuid = call.request.browserGuid;
+            let redirectUrl = call.request.url;
+            await browserService.RedirectToAsync(browserGuid, redirectUrl);
+            callback(null, {success: true});
+        } 
+        catch (error) 
+        {
+            callback(error, {success: false});
+        }
     },
-    refreshPage: (call, callback) => {
-        callback(null, null);
+    refreshPage: async (call, callback) => {
+        try{
+            let browserGuid = call.request.browserGuid;
+            await browserService.RefreshPageAsync(browserGuid);
+            callback(null, {success: true});
+        }
+        catch(error){
+            callback(error, {success: false});
+        }
     },
-    getCurrentUrl: (call, callback) => {
-        console.log(call);
+    getCurrentUrl: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let url = await browserService.GetCurrentUrlAsync(browserGuid);
+            callback(null, {url});
+        } catch (error) {
+            callback(error, {url: null});
+        }
         callback(null, null);
     },
     injectJs: async (call, callback) => {
-        let browserGuid = call.request.browserGuid;
+        try {
+            let browserGuid = call.request.browserGuid;
         let jsCode = call.request.jsCode;
         await browserService.InjectJSCodeAsync(browserGuid, jsCode);
         callback(null, {success: true});
+        } catch (error) {
+            callback(error, {success: false});
+        }
     },
     injectJsWithResult: async (call, callback) => {
-        let browserGuid = call.request.browserGuid;
+        try {
+            let browserGuid = call.request.browserGuid;
         let jsCode = call.request.jsCode;
         let result = await browserService.InjectJSCodeWithResultAsync(browserGuid, jsCode);
         callback(null, {success: true, result});
+        } catch (error) {
+            console.log(error);
+            callback(error, {success: false, result: null});
+        }
     }
 });
 

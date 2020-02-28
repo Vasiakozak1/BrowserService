@@ -7,7 +7,7 @@ module.exports = class BrowserService {
         this.Browsers = new Map();
     }
 
-    async getActiveBrowserPageAsync(browser) { // There might be better way of getting current tab.
+    async GetActiveBrowserPageAsync(browser) { // There might be better way of getting current tab.
         let pages = await browser.pages();
         return pages[pages.length - 1];
     }
@@ -23,7 +23,6 @@ module.exports = class BrowserService {
             ]
         });
 
-        const page = await browser.newPage();
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
         return browserGuid;
@@ -37,20 +36,41 @@ module.exports = class BrowserService {
 
     async RedirectToAsync(browserGuid, url) {
         let browser = this.Browsers.get(browserGuid);
-        let currentPage = await getActiveBrowserPageAsync(browser);
+        let currentPage = await this.GetActiveBrowserPageAsync(browser);
         await currentPage.goto(url);
     }
 
     async InjectJSCodeAsync(browserGuid, jsCode) {
         let browser = this.Browsers.get(browserGuid);
-        let page = await getActiveBrowserPageAsync(browser);
+        let page = await this.GetActiveBrowserPageAsync(browser);
         await page.evaluateHandle(jsCode);
     }
 
     async InjectJSCodeWithResultAsync(browserGuid, jsCode) {
+        try {
+            let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        
+        let resultHandle = await page.evaluateHandle(jsCode);
+        let result = await resultHandle.jsonValue();
+        return result;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+        
+    }
+
+    async RefreshPageAsync(browserGuid) {
         let browser = this.Browsers.get(browserGuid);
-        let page = await getActiveBrowserPageAsync(browser);
-        return await page.evaluateHandle(jsCode);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.reload({waitUntil: ['load', 'domcontentloaded']});
+    }
+
+    async GetCurrentUrlAsync(browserGuid) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        return page.url();
     }
 
     generateBrowserGuid(){

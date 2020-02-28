@@ -2,11 +2,11 @@ syntax = "proto3";
 
 service ChromiumManipulatorService {
     rpc StartChromiumSession (StartChromiumSessionRequest) returns (StartChromiumSessionResponse);
-    rpc EndChromiumSession (EndChromiumSessionRequest) returns (EndChromiumSessionResponse);
-    rpc RedirectTo (RedirectToRequest) returns (RedirectToResponse);
-    rpc RefreshPage (Empty) returns (Empty);
-    rpc GetCurrentUrl (GetCurrentUrlRequest) returns (GetCurrentUrlResponse);
-    rpc InjectJS (InjectJSRequest) returns (InjectJSResponse);
+    rpc EndChromiumSession (EndChromiumSessionRequest) returns (SuccessModel);
+    rpc RedirectTo (RedirectToRequest) returns (SuccessModel);
+    rpc RefreshPage (BrowserModel) returns (SuccessModel);
+    rpc GetCurrentUrl (BrowserModel) returns (GetCurrentUrlResponse);
+    rpc InjectJS (InjectJSRequest) returns (SuccessModel);
     rpc InjectJSWithResult (InjectJSWithResultRequest) returns (InjectJSWithResultResponse);
 }
 
@@ -22,22 +22,13 @@ message StartChromiumSessionResponse{
 message EndChromiumSessionRequest {
     string browserSessionGuid = 1;
 }
-message EndChromiumSessionResponse {
-    bool success = 1;
-}
 message RedirectToRequest {
     string browserGuid = 1;
     string url = 2;
 }
-message RedirectToResponse {
-    bool success = 1;
-}
 message InjectJSRequest {
     string browserGuid = 1;
     string jsCode = 2;
-}
-message InjectJSResponse {
-    bool success = 1;
 }
 message InjectJSWithResultRequest {
     string browserGuid = 1;
@@ -47,9 +38,12 @@ message InjectJSWithResultResponse {
     bool success = 1;
     string result = 2;
 }
-message GetCurrentUrlRequest {
-    string browserGuid = 1;
-}
 message GetCurrentUrlResponse {
     string url = 1;
+}
+message BrowserModel {
+    string browserGuid = 1;
+}
+message SuccessModel {
+    bool success = 1;
 }
