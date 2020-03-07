@@ -51,14 +51,49 @@ module.exports = class BrowserService {
             let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         
-        let resultHandle = await page.evaluateHandle(jsCode);
-        let result = await resultHandle.jsonValue();
+       // let resultHandle = await page.evaluateHandle(jsCode);
+        let resultHandle = await page.evaluate(jsCode);
+        console.log(resultHandle);
+        let result;
+        if(resultHandle.jsonValue) {
+            result = await resultHandle.jsonValue();
+        }
+        else {
+            result = resultHandle;
+        }
+        console.log(result);
         return result;
         } catch (error) {
             console.log(error);
             throw error;
         }
-        
+    }
+
+    async PressButton(browserGuid, button) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.keyboard.press(button);
+    }
+
+    async DocumentNodeExists(browserGuid, jsCode) {
+        try {
+            let browser = this.Browsers.get(browserGuid);
+            let page = await this.GetActiveBrowserPageAsync(browser);
+            let elementExists = await page.evaluate(jsCode + " != null");
+            console.log(elementExists)
+            return elementExists;
+        }
+        catch(error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async SendKeysToElement(browserGuid, keys) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.keyboard.type(keys, {delay: 100});
+       // await page.type(elementSelector, keys, {delay: 200});
     }
 
     async RefreshPageAsync(browserGuid) {

@@ -8,6 +8,9 @@ service ChromiumManipulatorService {
     rpc GetCurrentUrl (BrowserModel) returns (GetCurrentUrlResponse);
     rpc InjectJS (InjectJSRequest) returns (SuccessModel);
     rpc InjectJSWithResult (InjectJSWithResultRequest) returns (InjectJSWithResultResponse);
+    rpc PressButton(PressButtonRequest) returns (SuccessModel);
+    rpc SendKeys(SendKeysRequest) returns (SuccessModel);
+    rpc DOMElementExists(InjectJSWithResultRequest) returns (SuccessModel);
 }
 
 message Empty {
@@ -46,4 +49,12 @@ message BrowserModel {
 }
 message SuccessModel {
     bool success = 1;
+}
+message PressButtonRequest {
+    string browserGuid = 1;
+    string button = 2;
+}
+message SendKeysRequest {
+    string browserGuid = 1;
+    string keys = 2;
 }

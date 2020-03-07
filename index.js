@@ -66,6 +66,40 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             console.log(error);
             callback(error, {success: false, result: null});
         }
+    },
+    pressButton: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let button = call.request.button;
+            await browserService.PressButton(browserGuid, button);
+            callback(null, {success: true});
+        }
+        catch(error) {
+            callback(error, {success: false});
+        }
+    },
+    sendKeys: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let keys = call.request.keys;
+            await browserService.SendKeysToElement(browserGuid, keys);
+            callback(null, {success: true});
+        } catch (error) {
+            callback(error, {success: false});
+        }
+    },
+    DOMElementExists: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let jsCode = call.request.jsCode;
+            let nodeExists = await browserService.DocumentNodeExists(browserGuid, jsCode);
+            callback(null, {success: nodeExists});
+        }
+        catch(error) {
+            console.log(error);
+            callback(error, {success: false});
+
+        }
     }
 });
 
