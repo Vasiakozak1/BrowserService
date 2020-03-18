@@ -1,8 +1,9 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
 
+   const puppeteer = require('puppeteer-extra');
+   const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+   puppeteer.use(StealthPlugin());
 module.exports = class BrowserService {
+    
     constructor() {
         this.Browsers = new Map();
     }
@@ -13,7 +14,7 @@ module.exports = class BrowserService {
     }
 
     async CreateNewAsync(pathToExtension) {
-        console.log("path:" + pathToExtension);
+        console.log("extension path:" + pathToExtension);
         let browser = await puppeteer.launch({
             headless: false,
             args: [
@@ -22,6 +23,7 @@ module.exports = class BrowserService {
                 '--load-extension=' + pathToExtension,
             ]
         });
+        const page = await browser.newPage()
 
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
@@ -41,6 +43,7 @@ module.exports = class BrowserService {
     }
 
     async InjectJSCodeAsync(browserGuid, jsCode) {
+
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         await page.evaluateHandle(jsCode);
@@ -59,7 +62,7 @@ module.exports = class BrowserService {
             result = await resultHandle.jsonValue();
         }
         else {
-            result = resultHandle;
+            result = resultHandle.toString();
         }
         console.log(result);
         return result;
@@ -73,6 +76,29 @@ module.exports = class BrowserService {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         await page.keyboard.press(button);
+    }
+
+    async UserClickOnElement(browserGuid, elementSelector) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.click(elementSelector, {delay: 90});
+    }
+    async UserTypeToInput(browserGuid, inputSelector, text) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.type(inputSelector, text, {delay: 90});
+    }
+    async UserHoverOnElement(browserGuid, elementSelector) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        await page.hover(elementSelector);
+    }
+
+    async UserMouseMove(browserGuid, x, y) {
+        let browser = this.Browsers.get(browserGuid);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+        let randomSteps = this.getRandomInt(25);
+        await page.mouse.move(x, y, { steps: randomSteps});
     }
 
     async DocumentNodeExists(browserGuid, jsCode) {
@@ -89,7 +115,7 @@ module.exports = class BrowserService {
         }
     }
 
-    async SendKeysToElement(browserGuid, keys) {
+    async SendKeysToPage(browserGuid, keys) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         await page.keyboard.type(keys, {delay: 100});
@@ -105,8 +131,14 @@ module.exports = class BrowserService {
     async GetCurrentUrlAsync(browserGuid) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+        console.log('page.url:');
+        console.log(page.url());
         return page.url();
     }
+
+    getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+      }
 
     generateBrowserGuid(){
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {

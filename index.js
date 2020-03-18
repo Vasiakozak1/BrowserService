@@ -82,7 +82,51 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         try {
             let browserGuid = call.request.browserGuid;
             let keys = call.request.keys;
-            await browserService.SendKeysToElement(browserGuid, keys);
+            await browserService.SendKeysToPage(browserGuid, keys);
+            callback(null, {success: true});
+        } catch (error) {
+            callback(error, {success: false});
+        }
+    },
+    userClick: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let elementSelector = call.request.elementSelector;
+            await browserService.UserClickOnElement(browserGuid, elementSelector);
+            callback(null, {success: true});
+        } catch (error) {
+            callback(error, {success: false});
+        }
+    },
+    userTypeToInput: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let elementSelector = call.request.elementSelector;
+            let text = call.request.text;
+            await browserService.UserTypeToInput(browserGuid, elementSelector, text);
+            callback(null, {success: true});
+        } catch (error) {
+            callback(error, {success: false});
+        }
+    },
+    userHoverOnElement: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let elementSelector = call.request.elementSelector;
+            await browserService.UserHoverOnElement(browserGuid, elementSelector);
+            callback(null, {success: true});
+
+        } catch (error) {
+            callback(error, {success: false});
+
+        }
+    },
+    userMoveMouse: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let x = call.request.x;
+            let y = call.request.y;
+            await browserService.UserMouseMove(browserGuid, x, y);
             callback(null, {success: true});
         } catch (error) {
             callback(error, {success: false});

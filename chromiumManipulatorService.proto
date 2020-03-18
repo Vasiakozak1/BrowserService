@@ -11,6 +11,10 @@ service ChromiumManipulatorService {
     rpc PressButton(PressButtonRequest) returns (SuccessModel);
     rpc SendKeys(SendKeysRequest) returns (SuccessModel);
     rpc DOMElementExists(InjectJSWithResultRequest) returns (SuccessModel);
+    rpc UserClick(UserClickRequest) returns (SuccessModel);
+    rpc UserTypeToInput(UserTypeRequest) returns (SuccessModel);
+    rpc UserHoverOnElement(HoverElementRequest) returns (SuccessModel);
+    rpc UserMoveMouse(UserMoveMouseRequest) returns (SuccessModel);
 }
 
 message Empty {
@@ -57,4 +61,22 @@ message PressButtonRequest {
 message SendKeysRequest {
     string browserGuid = 1;
     string keys = 2;
+}
+message UserClickRequest {
+    string browserGuid = 1;
+    string elementSelector = 2;
+}
+message UserTypeRequest {
+    string browserGuid = 1;
+    string elementSelector = 2;
+    string text = 3;
+}
+message HoverElementRequest {
+    string browserGuid = 1;
+    string elementSelector = 2;
+}
+message UserMoveMouseRequest {
+    string browserGuid = 1;
+    int32 x = 2;
+    int32 y = 3;
 }
