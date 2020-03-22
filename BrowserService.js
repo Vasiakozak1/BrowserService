@@ -23,7 +23,7 @@ module.exports = class BrowserService {
                 '--load-extension=' + pathToExtension,
             ]
         });
-        const page = await browser.newPage()
+        const page = await browser.newPage();
 
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
@@ -38,14 +38,22 @@ module.exports = class BrowserService {
 
     async RedirectToAsync(browserGuid, url) {
         let browser = this.Browsers.get(browserGuid);
-        let currentPage = await this.GetActiveBrowserPageAsync(browser);
-        await currentPage.goto(url);
+        let page = await this.GetActiveBrowserPageAsync(browser);
+
+        await this.waitIfPageLoads(page);
+
+        page.needsWaitForNavigation = true;
+        await page.goto(url, {waitUntil: ["domcontentloaded"]}),
+        page.needsWaitForNavigation = false;
     }
 
     async InjectJSCodeAsync(browserGuid, jsCode) {
 
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+
+        await this.waitIfPageLoads(page);
+
         await page.evaluateHandle(jsCode);
     }
 
@@ -54,9 +62,13 @@ module.exports = class BrowserService {
             let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         
+        await this.waitIfPageLoads(page);
+
        // let resultHandle = await page.evaluateHandle(jsCode);
         let resultHandle = await page.evaluate(jsCode);
-        console.log(resultHandle);
+        // console.log('run js:' + jsCode);
+        // console.log('resultHandle:');
+        // console.log(resultHandle);
         let result;
         if(resultHandle.jsonValue) {
             result = await resultHandle.jsonValue();
@@ -64,9 +76,11 @@ module.exports = class BrowserService {
         else {
             result = resultHandle.toString();
         }
-        console.log(result);
+        // console.log('result');
+        // console.log(result);
         return result;
         } catch (error) {
+            console.log('error in InjectJSCodeWithResultAsync:' + jsCode);
             console.log(error);
             throw error;
         }
@@ -75,22 +89,34 @@ module.exports = class BrowserService {
     async PressButton(browserGuid, button) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+        
+        await this.waitIfPageLoads(page);
+
         await page.keyboard.press(button);
     }
 
     async UserClickOnElement(browserGuid, elementSelector) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+        
+        await this.waitIfPageLoads(page);
+        
         await page.click(elementSelector, {delay: 90});
     }
     async UserTypeToInput(browserGuid, inputSelector, text) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+
+        await this.waitIfPageLoads(page);
+
         await page.type(inputSelector, text, {delay: 90});
     }
     async UserHoverOnElement(browserGuid, elementSelector) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+        
+        await this.waitIfPageLoads(page);
+
         await page.hover(elementSelector);
     }
 
@@ -98,6 +124,9 @@ module.exports = class BrowserService {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
         let randomSteps = this.getRandomInt(25);
+        
+        await this.waitIfPageLoads(page);
+
         await page.mouse.move(x, y, { steps: randomSteps});
     }
 
@@ -105,6 +134,9 @@ module.exports = class BrowserService {
         try {
             let browser = this.Browsers.get(browserGuid);
             let page = await this.GetActiveBrowserPageAsync(browser);
+
+            await this.waitIfPageLoads(page);
+
             let elementExists = await page.evaluate(jsCode + " != null");
             console.log(elementExists)
             return elementExists;
@@ -118,6 +150,9 @@ module.exports = class BrowserService {
     async SendKeysToPage(browserGuid, keys) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
+
+        await this.waitIfPageLoads(page);
+
         await page.keyboard.type(keys, {delay: 100});
        // await page.type(elementSelector, keys, {delay: 200});
     }
@@ -125,15 +160,31 @@ module.exports = class BrowserService {
     async RefreshPageAsync(browserGuid) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
-        await page.reload({waitUntil: ['load', 'domcontentloaded']});
+        
+        await this.waitIfPageLoads(page);
+
+        page.needsWaitForNavigation = true;
+        await page.reload({waitUntil: ['domcontentloaded']});
+        page.needsWaitForNavigation = false;
     }
 
     async GetCurrentUrlAsync(browserGuid) {
         let browser = this.Browsers.get(browserGuid);
         let page = await this.GetActiveBrowserPageAsync(browser);
-        console.log('page.url:');
-        console.log(page.url());
+        
+        await this.waitIfPageLoads(page);
+
         return page.url();
+    }
+
+    async waitIfPageLoads(page) {
+        if(page.needsWaitForNavigation) {
+            let retryTimes = 0;
+            while(page.needsWaitForNavigation && retryTimes < 5) {
+                await this.delay(5000);
+                retryTimes++;
+            }
+         }
     }
 
     getRandomInt(max) {
@@ -147,5 +198,12 @@ module.exports = class BrowserService {
           });
     }
 
+    delay(milliseconds) { 
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve();
+          }, milliseconds);
+        });
+      }
     
 }

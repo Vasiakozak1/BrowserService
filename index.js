@@ -40,11 +40,12 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         try {
             let browserGuid = call.request.browserGuid;
             let url = await browserService.GetCurrentUrlAsync(browserGuid);
+            console.log('current url:');
+            console.log(url);
             callback(null, {url});
         } catch (error) {
             callback(error, {url: null});
         }
-        callback(null, null);
     },
     injectJs: async (call, callback) => {
         try {
