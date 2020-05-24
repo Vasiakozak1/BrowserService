@@ -9,6 +9,10 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         let guid = await browserService.CreateNewAsync(call.request.extensionPath);
         callback(null, {browserSessionGuid: guid});
     },
+    startChromiumSessionWithoutProxy: async (call, callback) => {
+        let guid = await browserService.CreateNewWithoutProxyAsync();
+        callback(null, {browserSessionGuid: guid});
+    },
     endChromiumSession: async (call, callback) => {
         await browserService.CloseBrowserAsync(call.request.browserSessionGuid);        
         callback(null, {success: true});
@@ -19,10 +23,13 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             let browserGuid = call.request.browserGuid;
             let redirectUrl = call.request.url;
             await browserService.RedirectToAsync(browserGuid, redirectUrl);
+            console.log('redirected to:' + redirectUrl);
             callback(null, {success: true});
         } 
         catch (error) 
         {
+            console.log('redirectTo error:');
+            console.log(error);
             callback(error, {success: false});
         }
     },
@@ -30,9 +37,12 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         try{
             let browserGuid = call.request.browserGuid;
             await browserService.RefreshPageAsync(browserGuid);
+            console.log('refreshed page');
             callback(null, {success: true});
         }
         catch(error){
+            console.log('refreshPage error');
+            console.log(error);
             callback(error, {success: false});
         }
     },
@@ -44,26 +54,36 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             console.log(url);
             callback(null, {url});
         } catch (error) {
+            console.log('get current url error');
+            console.log(error);
             callback(error, {url: null});
         }
     },
     injectJs: async (call, callback) => {
+        let jsCode;
         try {
             let browserGuid = call.request.browserGuid;
-        let jsCode = call.request.jsCode;
+        jsCode = call.request.jsCode;
         await browserService.InjectJSCodeAsync(browserGuid, jsCode);
+        console.log('inject:' + jsCode);
         callback(null, {success: true});
         } catch (error) {
+            console.log('inject js:' + jsCode + " error");
+            console.log(error);
             callback(error, {success: false});
         }
     },
     injectJsWithResult: async (call, callback) => {
+        let jsCode;
         try {
             let browserGuid = call.request.browserGuid;
-        let jsCode = call.request.jsCode;
+        jsCode = call.request.jsCode;
         let result = await browserService.InjectJSCodeWithResultAsync(browserGuid, jsCode);
+        console.log('inject:' + jsCode + " result:" + result);
+
         callback(null, {success: true, result});
         } catch (error) {
+            console.log('inject js:' + jsCode + " error");
             console.log(error);
             callback(error, {success: false, result: null});
         }
@@ -73,9 +93,39 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             let browserGuid = call.request.browserGuid;
             let button = call.request.button;
             await browserService.PressButton(browserGuid, button);
+            console.log('bressed button: ' + button);
             callback(null, {success: true});
         }
         catch(error) {
+            console.log('pressButton error');
+            console.log(error);
+            callback(error, {success: false});
+        }
+    },
+    setButtonDown: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let button = call.request.button;
+            await browserService.SetButtonDown(browserGuid, button);
+            console.log('set button down: ' + button);
+            callback(null, {success: true});
+
+        } catch (error) {
+            console.log('setButtonDown error');
+            console.log(error);
+            callback(error, {success: false});
+        }
+    },
+    setButtonUp: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let button = call.request.button;
+            await browserService.SetButtonUp(browserGuid, button);
+            console.log('set button up: ' + button);
+            callback(null, {success: true});
+        } catch (error) {
+            console.log('setButtonUp error');
+            console.log(error);
             callback(error, {success: false});
         }
     },
@@ -84,6 +134,7 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             let browserGuid = call.request.browserGuid;
             let keys = call.request.keys;
             await browserService.SendKeysToPage(browserGuid, keys);
+            console.log('sendKeys: ' + keys);
             callback(null, {success: true});
         } catch (error) {
             callback(error, {success: false});
@@ -94,8 +145,11 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             let browserGuid = call.request.browserGuid;
             let elementSelector = call.request.elementSelector;
             await browserService.UserClickOnElement(browserGuid, elementSelector);
+            console.log('user click: ' + elementSelector);
             callback(null, {success: true});
         } catch (error) {
+            console.log('userClick error');
+            console.log(error);
             callback(error, {success: false});
         }
     },
@@ -144,6 +198,28 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
             console.log(error);
             callback(error, {success: false});
 
+        }
+    },
+    waitForSelector: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let selector = call.request.elementSelector;
+            await browserService.WaitForSelector(browserGuid, selector);
+            callback(null, {success: true});
+        } catch (error) {
+            console.log(error);
+            callback(error, {success: false});
+        }
+    },
+    waitForXpath: async (call, callback) => {
+        try {
+            let browserGuid = call.request.browserGuid;
+            let xpath = call.request.xpath;
+            await browserService.WaitForXpath(browserGuid, xpath);
+            callback(null, {success: true});
+        } catch (error) {
+            console.log(error);
+            callback(error, {success: false});
         }
     }
 });

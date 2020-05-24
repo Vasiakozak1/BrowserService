@@ -2,6 +2,7 @@ syntax = "proto3";
 
 service ChromiumManipulatorService {
     rpc StartChromiumSession (StartChromiumSessionRequest) returns (StartChromiumSessionResponse);
+    rpc StartChromiumSessionWithoutProxy (Empty) returns (StartChromiumSessionResponse);
     rpc EndChromiumSession (EndChromiumSessionRequest) returns (SuccessModel);
     rpc RedirectTo (RedirectToRequest) returns (SuccessModel);
     rpc RefreshPage (BrowserModel) returns (SuccessModel);
@@ -9,12 +10,16 @@ service ChromiumManipulatorService {
     rpc InjectJS (InjectJSRequest) returns (SuccessModel);
     rpc InjectJSWithResult (InjectJSWithResultRequest) returns (InjectJSWithResultResponse);
     rpc PressButton(PressButtonRequest) returns (SuccessModel);
+    rpc SetButtonDown(PressButtonRequest) returns (SuccessModel);
+    rpc SetButtonUp(PressButtonRequest) returns (SuccessModel);
     rpc SendKeys(SendKeysRequest) returns (SuccessModel);
     rpc DOMElementExists(InjectJSWithResultRequest) returns (SuccessModel);
-    rpc UserClick(UserClickRequest) returns (SuccessModel);
+    rpc UserClick(ElementRequest) returns (SuccessModel);
     rpc UserTypeToInput(UserTypeRequest) returns (SuccessModel);
-    rpc UserHoverOnElement(HoverElementRequest) returns (SuccessModel);
+    rpc UserHoverOnElement(ElementRequest) returns (SuccessModel);
     rpc UserMoveMouse(UserMoveMouseRequest) returns (SuccessModel);
+    rpc WaitForSelector(ElementRequest) returns (SuccessModel);
+    rpc WaitForXpath(ElementXpathRequest) returns (SuccessModel);
 }
 
 message Empty {
@@ -62,18 +67,18 @@ message SendKeysRequest {
     string browserGuid = 1;
     string keys = 2;
 }
-message UserClickRequest {
-    string browserGuid = 1;
-    string elementSelector = 2;
-}
 message UserTypeRequest {
     string browserGuid = 1;
     string elementSelector = 2;
     string text = 3;
 }
-message HoverElementRequest {
+message ElementRequest {
     string browserGuid = 1;
     string elementSelector = 2;
+}
+message ElementXpathRequest {
+    string browserGuid = 1;
+    string xpath = 2;
 }
 message UserMoveMouseRequest {
     string browserGuid = 1;
