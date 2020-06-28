@@ -13,6 +13,10 @@ server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
         let guid = await browserService.CreateNewWithoutProxyAsync();
         callback(null, {browserSessionGuid: guid});
     },
+    startChromiumSessionWithoutMultipleExtensions: async (call, callback) => {
+        let guid = await browserService.CreateNewWithMultipleExtensionsAsync(call.request.extensionsPathes);
+        callback(null, {browserSessionGuid: guid});
+    },
     endChromiumSession: async (call, callback) => {
         await browserService.CloseBrowserAsync(call.request.browserSessionGuid);        
         callback(null, {success: true});

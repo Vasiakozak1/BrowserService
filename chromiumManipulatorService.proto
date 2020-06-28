@@ -3,6 +3,7 @@ syntax = "proto3";
 service ChromiumManipulatorService {
     rpc StartChromiumSession (StartChromiumSessionRequest) returns (StartChromiumSessionResponse);
     rpc StartChromiumSessionWithoutProxy (Empty) returns (StartChromiumSessionResponse);
+    rpc StartChromiumSessionWithoutMultipleExtensions (StartChromiumSessionWithExtensionsRequest) returns (StartChromiumSessionResponse);
     rpc EndChromiumSession (EndChromiumSessionRequest) returns (SuccessModel);
     rpc RedirectTo (RedirectToRequest) returns (SuccessModel);
     rpc RefreshPage (BrowserModel) returns (SuccessModel);
@@ -27,6 +28,9 @@ message Empty {
 
 message StartChromiumSessionRequest {
     string extensionPath = 1;
+}
+message StartChromiumSessionWithExtensionsRequest {
+    repeated string extensionsPathes = 1;
 }
 message StartChromiumSessionResponse{
     string browserSessionGuid = 1;

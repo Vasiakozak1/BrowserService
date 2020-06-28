@@ -30,6 +30,36 @@ module.exports = class BrowserService {
         return browserGuid;
     }
 
+    async CreateNewWithMultipleExtensionsAsync(extensionsPathes) {
+        console.log('Create new with such extensions:');
+        console.log(extensionsPathes);
+        let disableExtensionExceptArg = '--disable-extensions-except='
+        let loadExtensionArg = '--load-extension=';
+        for(let extensionIndex = 0; extensionIndex < extensionsPathes.length; extensionIndex ++) {
+            let extensionPath = extensionsPathes[extensionIndex];
+            if(extensionPath > 0) {
+                disableExtensionExceptArg += ',';
+                loadExtensionArg += ','
+            }
+
+            disableExtensionExceptArg += extensionPath;
+            loadExtensionArg += extensionPath;
+        };
+        let browser = await puppeteer.launch({
+            headless: false,
+            args: [
+                '-noframemerging',
+                disableExtensionExceptArg,
+                loadExtensionArg,
+            ]
+        });
+        const page = await browser.newPage();
+
+        let browserGuid = this.generateBrowserGuid();
+        this.Browsers.set(browserGuid, browser);
+        return browserGuid;
+    }
+
     async CreateNewWithoutProxyAsync() {
         let browser = await puppeteer.launch({
             headless: false,
@@ -130,6 +160,10 @@ module.exports = class BrowserService {
         await this.waitIfPageLoads(page);
 
         const boundingBox = await this.GetElementBoundingBox(browserGuid, elementSelector);
+        if(boundingBox == null) {
+            await this.delay(1050);
+            boundingBox = await this.GetElementBoundingBox(browserGuid, elementSelector);
+        }
         const randomPoint = this.getRandomPoint(boundingBox.x, boundingBox.y, boundingBox.width, boundingBox.height);
 
         let randomDelayBetweenDownAndUp = this.getRandomInt(50,100);
