@@ -37,7 +37,7 @@ module.exports = class BrowserService {
         let loadExtensionArg = '--load-extension=';
         for(let extensionIndex = 0; extensionIndex < extensionsPathes.length; extensionIndex ++) {
             let extensionPath = extensionsPathes[extensionIndex];
-            if(extensionPath > 0) {
+            if(extensionIndex > 0) {
                 disableExtensionExceptArg += ',';
                 loadExtensionArg += ','
             }
