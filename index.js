@@ -6,15 +6,15 @@ const server = new grpc.Server();
 
 server.addService(chromiumServiceProto.ChromiumManipulatorService.service, {
     startChromiumSession: async (call, callback) => {
-        let guid = await browserService.CreateNewAsync(call.request.extensionPath);
+        let guid = await browserService.CreateNewAsync(call.request.extensionPath, call.request.headless);
         callback(null, {browserSessionGuid: guid});
     },
     startChromiumSessionWithoutProxy: async (call, callback) => {
-        let guid = await browserService.CreateNewWithoutProxyAsync();
+        let guid = await browserService.CreateNewWithoutProxyAsync(call.request.headless);
         callback(null, {browserSessionGuid: guid});
     },
     startChromiumSessionWithoutMultipleExtensions: async (call, callback) => {
-        let guid = await browserService.CreateNewWithMultipleExtensionsAsync(call.request.extensionsPathes);
+        let guid = await browserService.CreateNewWithMultipleExtensionsAsync(call.request.extensionsPathes, call.request.headless);
         callback(null, {browserSessionGuid: guid});
     },
     endChromiumSession: async (call, callback) => {

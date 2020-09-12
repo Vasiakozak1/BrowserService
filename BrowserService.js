@@ -13,24 +13,28 @@ module.exports = class BrowserService {
         return pages[pages.length - 1];
     }
 
-    async CreateNewAsync(pathToExtension) {
+    async CreateNewAsync(pathToExtension, headless) {
         console.log("extension path:" + pathToExtension);
         let browser = await puppeteer.launch({
-            headless: false,
+            headless: headless,
             args: [
                 '-noframemerging',
                 '--disable-extensions-except=' + pathToExtension,
                 '--load-extension=' + pathToExtension,
+                '--window-size=1200,800',
+                "--proxy-server='direct://'", 
+                '--proxy-bypass-list=*',
             ]
         });
         const page = await browser.newPage();
+        page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
 
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
         return browserGuid;
     }
 
-    async CreateNewWithMultipleExtensionsAsync(extensionsPathes) {
+    async CreateNewWithMultipleExtensionsAsync(extensionsPathes, headless) {
         console.log('Create new with such extensions:');
         console.log(extensionsPathes);
         let disableExtensionExceptArg = '--disable-extensions-except='
@@ -46,28 +50,36 @@ module.exports = class BrowserService {
             loadExtensionArg += extensionPath;
         };
         let browser = await puppeteer.launch({
-            headless: false,
+            headless: headless,
             args: [
+                "--proxy-server='direct://'", 
+                '--proxy-bypass-list=*',
                 '-noframemerging',
+                '--window-size=1200,800',
                 disableExtensionExceptArg,
                 loadExtensionArg,
             ]
         });
         const page = await browser.newPage();
-
+        page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
+        
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
         return browserGuid;
     }
 
-    async CreateNewWithoutProxyAsync() {
+    async CreateNewWithoutProxyAsync(headless) {
         let browser = await puppeteer.launch({
-            headless: false,
+            headless: headless,
             args: [
-                '-noframemerging'
+                '-noframemerging',
+                '--window-size=1200,800',
+                "--proxy-server='direct://'", 
+                '--proxy-bypass-list=*',
             ]
         });
         const page = await browser.newPage();
+        page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
 
         let browserGuid = this.generateBrowserGuid();
         this.Browsers.set(browserGuid, browser);
